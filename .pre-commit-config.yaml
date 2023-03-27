@@ -31,3 +31,9 @@ repos:
     rev: 22.8.0
     hooks:
     - id: black
+-   repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo-fmt
+        entry: bash -c 'cargo fmt --all'
+        language: system
