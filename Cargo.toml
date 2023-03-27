@@ -1,0 +1,28 @@
+[package]
+name = "unicode_pyo3"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "unicode_pyo3"
+path = "src/rust/main.rs"
+
+[lib]
+name = "lib_unicode_pyo3"
+path = "src/rust/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.17.1", features = ["extension-module"] }
+num-format = "0.4.0"
+timeit = "0.1.2"
+strum = { version = "0.24", features = ["derive"] }
+serde = { version = "1.0.145", features = ["derive"] }
+serde-pickle = "1.1.1"
+serde_with = "2.0.1"
+
+[package.metadata.maturin]
+python-source = "src/py"
+name = "unicode_pyo3.lib_unicode_pyo3"
