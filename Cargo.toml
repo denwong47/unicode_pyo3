@@ -10,17 +10,18 @@ name = "lib_unicode_pyo3"
 path = "src/rust/lib.rs"
 crate-type = ["cdylib"]
 
+[features]
+default = [ "polars" ]
+polars = [ "dep:polars", "dep:pyo3-polars" ]
+
 [dependencies]
 lazy_static = { version = "1" }
 pyo3 = { version = "0", features = ["extension-module"] }
 rayon = { version = "1" }
 unicode-segmentation = { version = "1" }
-# num-format = "0.4"
-# timeit = "0.1.2"
-# strum = { version = "0.24", features = ["derive"] }
-# serde = { version = "1.0.145", features = ["derive"] }
-# serde-pickle = "1.1.1"
-# serde_with = "2.0.1"
+
+polars = { version = "0", optional = true, features = ["lazy"] }
+pyo3-polars = { version = "0", optional = true }
 
 [package.metadata.maturin]
 python-source = "src/py"
