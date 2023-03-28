@@ -11,7 +11,8 @@ path = "src/rust/lib.rs"
 crate-type = ["cdylib"]
 
 [features]
-default = [ "polars" ]
+default = [ "numpy", "polars" ]
+numpy = [ "dep:ndarray", "dep:numpy" ]
 polars = [ "dep:polars", "dep:pyo3-polars" ]
 
 [dependencies]
@@ -19,6 +20,9 @@ lazy_static = { version = "1" }
 pyo3 = { version = "0", features = ["extension-module"] }
 rayon = { version = "1" }
 unicode-segmentation = { version = "1" }
+
+ndarray = { version = "0", optional = true, features = ["rayon"] }
+numpy = { version = "0", optional = true }
 
 polars = { version = "0", optional = true, features = ["lazy"] }
 pyo3-polars = { version = "0", optional = true }
