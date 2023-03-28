@@ -9,4 +9,9 @@ This project includes a Rust binary backend:
 
 from . import lib_unicode_pyo3 as bin
 from .config import logger
-from .lib_unicode_pyo3 import segmentate, segmentate_all
+from .lib_unicode_pyo3 import (
+    segmentate,
+    segmentate_all,
+    segmentate_all_to_polars,
+    segmentate_to_polars,
+)

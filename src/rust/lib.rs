@@ -3,9 +3,9 @@ use pyo3::prelude::*;
 #[cfg(feature = "polars")]
 use polars::prelude::*;
 #[cfg(feature = "polars")]
+use pyo3_polars::error::PyPolarsErr;
+#[cfg(feature = "polars")]
 use pyo3_polars::PySeries;
-// #[cfg(feature="polars")]
-// use pyo3_polars::error::PyPolarsErr;
 
 pub mod config;
 pub mod segmentation;
@@ -53,27 +53,23 @@ pub fn segmentate_to_polars(text: &str, bounds: Option<bool>) -> PyResult<PySeri
     Ok(PySeries(series))
 }
 
-// #[cfg(feature="polars")]
-// #[pyfunction]
-// pub fn segmentate_all_to_polars(
-//     texts: PySeries,
-//     bounds: Option<bool>,
-//     max_workers: Option<usize>,
-// ) -> PyResult<PyDataFrame> {
-//     let series: Series = texts.into();
+#[cfg(feature = "polars")]
+#[pyfunction]
+pub fn segmentate_all_to_polars(
+    texts: PySeries,
+    bounds: Option<bool>,
+    max_workers: Option<usize>,
+) -> PyResult<PySeries> {
+    let series: Series = texts.into();
 
-//     segmentation::segmentate_multiple_parallel_to_list(
-//         series,
-//         bounds.unwrap_or(DEFAULT_BOUNDS),
-//         max_workers.unwrap_or(4)
-//     )
-//     .map(
-//         |df| PyDataFrame(df)
-//     )
-//     .map_err(
-//         |err| PyPolarsErr::Polars(err).into()
-//     )
-// }
+    segmentation::segmentate_multiple_parallel_to_list(
+        series,
+        bounds.unwrap_or(DEFAULT_BOUNDS),
+        max_workers.unwrap_or(4),
+    )
+    .map(|series| PySeries(series))
+    .map_err(|err| PyPolarsErr::Polars(err).into())
+}
 
 /// A Python module implemented in Rust.
 #[pymodule]
@@ -84,8 +80,8 @@ fn lib_unicode_pyo3(_py: Python, m: &PyModule) -> PyResult<()> {
     #[cfg(feature = "polars")]
     m.add_function(wrap_pyfunction!(segmentate_to_polars, m)?)?;
 
-    // #[cfg(feature="polars")]
-    // m.add_function(wrap_pyfunction!(segmentate_all_to_polars, m)?)?;
+    #[cfg(feature = "polars")]
+    m.add_function(wrap_pyfunction!(segmentate_all_to_polars, m)?)?;
 
     Ok(())
 }

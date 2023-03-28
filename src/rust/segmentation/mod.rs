@@ -1,8 +1,8 @@
 use rayon::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
 
-// #[cfg(feature="polars")]
-// use polars::prelude::*;
+#[cfg(feature = "polars")]
+use polars::prelude::*;
 
 use crate::config::CPU_COUNT;
 
@@ -60,41 +60,38 @@ fn segmentate_multiple_parallel_to_vec<'a>(
         .collect()
 }
 
-// /// Internal function running multiple texts through [`segmentate`] in parallel into a
-// /// [`ChunkedArray`] of [`DataType::List`].
-// #[cfg(feature="polars")]
-// pub fn segmentate_multiple_parallel_to_list<'a>(
-//     texts: Series,
-//     bounds: bool,
-//     max_workers: usize,
-// ) -> Result<DataFrame, PolarsError> {
-//     let chunk_size = (texts.len() as f32 / max_workers as f32).ceil() as usize;
+/// Internal function running multiple texts through [`segmentate`] in parallel into a
+/// [`ChunkedArray`] of [`DataType::List`].
+#[cfg(feature = "polars")]
+pub fn segmentate_multiple_parallel_to_list<'a>(
+    texts: Series,
+    bounds: bool,
+    max_workers: usize,
+) -> Result<Series, PolarsError> {
+    let chunk_size = (texts.len() as f32 / max_workers as f32).ceil() as usize;
 
-//     let iter: Vec<Series> =
-//         texts
-//         .utf8()?
-//         .par_iter_indexed()
-//         .fold_chunks(
-//             chunk_size,
-//             || Vec::with_capacity(chunk_size),
-//             |mut v, text_opt| {
-//                 if let Some(text) = text_opt {
-//                     // Bad unwrapping, deal with later.
-//                     let mut series = segmentate::<Series>(text, bounds);
-//                     series.rename(text);
-//                     v.push(series);
-//                 } else {}
-//                 v
-//             }
-//         )
-//         .flatten()
-//         .collect()
-//     ;
+    let iter: Vec<Series> = texts
+        .utf8()?
+        .par_iter_indexed()
+        .fold_chunks(
+            chunk_size,
+            || Vec::with_capacity(chunk_size),
+            |mut v, text_opt| {
+                if let Some(text) = text_opt {
+                    // Bad unwrapping, deal with later.
+                    let mut series = segmentate::<Series>(text, bounds);
+                    series.rename(text);
+                    v.push(series);
+                } else {
+                }
+                v
+            },
+        )
+        .flatten()
+        .collect();
 
-//     Ok(
-//         DataFrame::from_iter(iter)
-//     )
-// }
+    Ok(Series::new("sentences", &iter))
+}
 
 /// Returns a `List[List[str]]` over substrings of each `str` in `texts` in sequence,
 /// separated on [UAX#29 sentence boundaries].
